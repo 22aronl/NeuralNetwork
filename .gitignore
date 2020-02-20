@@ -1,0 +1,7 @@
+*.ctxt
+*.class
+.vscode/
+build/
+formatting/
+*.xml
+*.json
