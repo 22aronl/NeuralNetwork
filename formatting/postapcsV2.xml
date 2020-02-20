@@ -39,6 +39,9 @@
     </module>
 
     <module name="TreeWalker">
+         <module name="ReturnCount">
+            <property name="max" value="1"/>
+         </module>
         <module name="OuterTypeFilename"/>
         <module name="IllegalTokenText">
             <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
@@ -278,7 +281,6 @@
         </module>
         <module name="NonEmptyAtclauseDescription"/>
         <module name="InvalidJavadocPosition"/>
-        <module name="JavadocTagContinuationIndentation"/>
          <module name="SummaryJavadocCheck">
             <property name ="period" value = "."/>
          </module>
