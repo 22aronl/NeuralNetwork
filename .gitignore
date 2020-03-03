@@ -3,3 +3,5 @@
 .vscode/
 build/
 *.json
+archive/
+*.zip
