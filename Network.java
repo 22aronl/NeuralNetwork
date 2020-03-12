@@ -2,14 +2,17 @@ import java.io.*;
 import java.util.*;
 
 /**
- * This is the current iteration of the neural network (not really). It currently can take in weights and inputs, and evaluates the
- * inputs into an output.
+ * This is the current iteration of the neural network It currently can take in weights and inputs, and evaluates the inputs into an
+ * output.
  * 
  * @author Aaron Lo
  * @version 2-11-20
  * 
  * 
- *          List of Methods:
+ *          List of Methods: double activationFunction(double, boolean), double changeInWeight(int, int, int, double), void
+ *          feedForward(), double getMaxError(), double getRandomNumber(double, double), void learningSet(), void
+ *          loadInputs(String), void loadWeights(String), void main(String[]), Network(String[]), void printStateOfNetwork(), void
+ *          printTestCases(), void printWeights(), void randomizeWeights(), void takeInInput()
  * 
  * 
  */
@@ -18,7 +21,7 @@ public class Network
    /**
     * This is the current tester for the neural network.
     * 
-    * @param args the input
+    * @param args the input from console
     */
    public static void main(String[] args) throws IOException
    {
@@ -31,11 +34,9 @@ public class Network
    public double higherRandomizedWeight = 1.0;
    /** How much the network steps at every iteration. */
    public double learningFactor = 0.1;
-   /**
-    * When the network should stop learning after hte error is below this threshold.
-    */
+   /** When the network should stop. */
    public double errorThreshold = 0.01;
-   /** How many times the network should run. */
+   /** The maximum number of times the network should run. */
    public int maximumNumberOfIteration = 100000;
 
    private double[][][] weights;
@@ -46,9 +47,15 @@ public class Network
    private int[] sizes;
 
    private int numOfTrainingSets;
-   private int inputNodes;
    private int totalNumberOfLayers;
 
+   /**
+    * This is the constructor for the neural network.
+    * 
+    * @param args the arguments from console; if one input, that signifies the configuration file, if there are more than one
+    *             argument, that signifies the layers of the network
+    * @throws IOException if the file called for is not found
+    */
    public Network(String[] args) throws IOException
    {
       String configurationFile = "configuration.txt";
@@ -65,26 +72,24 @@ public class Network
          for (int layer = 0; layer < totalNumberOfLayers; layer++)
          {
             sizes[layer] = Integer.parseInt(args[layer]);
+
             if (sizes[layer] > maxWidthForWeights)
                maxWidthForWeights = sizes[layer];
          }
-
-         this.inputNodes = sizes[0];
-      }
+      } // if (args.length > 1)
       else
       {
          if (args.length == 1)
             configurationFile = args[0];
 
          BufferedReader configReader = new BufferedReader(new FileReader(new File("files/" + configurationFile)));
-
-         this.inputNodes = Integer.parseInt(configReader.readLine());
+         int inputNodes = Integer.parseInt(configReader.readLine());
 
          totalNumberOfLayers = Integer.parseInt(configReader.readLine()) + 2;
          maxWidthForWeights = inputNodes;
 
          sizes = new int[totalNumberOfLayers];
-         sizes[0] = this.inputNodes;
+         sizes[0] = inputNodes;
 
          for (int layer = 1; layer < totalNumberOfLayers - 1; layer++)
          {
@@ -155,19 +160,18 @@ public class Network
    }
 
    /**
-    * This prints the test cases of the network.
+    * This prints the test cases of the network, it runs the input into the network and prints out the output.
     */
-   public void printTestCases()
+   private void printTestCases()
    {
       for (int i = 0; i < numOfTrainingSets; i++)
       {
          System.out.println("Test Number " + i);
          System.out.print("The inputs are ");
          values[0] = input[i];
-         for (int j = 0; j < inputNodes; j++)
-         {
+
+         for (int j = 0; j < sizes[0]; j++)
             System.out.print(values[0][j] + " ");
-         }
 
          System.out.println("");
          feedForward();
@@ -178,9 +182,9 @@ public class Network
    }
 
    /**
-    * This prints the weights in the network.
+    * This prints out the weights in the network.
     */
-   public void printWeights()
+   private void printWeights()
    {
       for (int layer = 0; layer < totalNumberOfLayers - 1; layer++) // Prints out weights
          for (int toNode = 0; toNode < sizes[layer + 1]; toNode++)
@@ -189,7 +193,7 @@ public class Network
    }
 
    /**
-    * This loads in the input and output testcases.
+    * This loads in the inputs from the inputFile and the outputs.
     * 
     * @param inputFile the file with this information
     * @throws IOException if the file is not found
@@ -232,7 +236,7 @@ public class Network
    }
 
    /**
-    * This trains the network to the test cases.
+    * This trains the network to the test cases. This requires that all weights and inputs created already.
     */
    public void learningSet()
    {
@@ -248,6 +252,7 @@ public class Network
             System.out.print("#");
             current += percentage;
          }
+
          for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
          {
             values[0] = input[trainingSet];
@@ -266,6 +271,7 @@ public class Network
 
          maxError = getMaxError();
       } // while (maxError > ERROR_THRESHOLD && iteration++ < MAXIMUM_NUMBER_OF_ITERATION)
+
       System.out.println("\nIterations " + (iteration - 1) + "\n");
    }
 
@@ -295,7 +301,8 @@ public class Network
    }
 
    /**
-    * This is the activation function.
+    * This is the activation function. If you want the normal function, call this with (input, false). If you want the derivative,
+    * enter into the input param the value that has already been activated, and true into the derivative param.
     * 
     * @param input      the input into the activation function
     * @param derivative true if you want the derivative of activation function; false if you want the activation function
@@ -306,7 +313,7 @@ public class Network
       double output = 0.0;
 
       if (derivative)
-         output = activationFunction(input, false) * (1 - activationFunction(input, false));
+         output = input * (1 - input);
       else
          output = 1 / (1 + Math.exp(-input));
 
@@ -325,30 +332,21 @@ public class Network
    public double changeInWeight(int layer, int currentNode, int nextNode, double expectedOutput)
    {
       double output = 0.0;
-      double realResult = calc(1, 0);
-      double psi = (expectedOutput - activationFunction(realResult, false)) * activationFunction(realResult, true);
-      double hj = 0.0;
+      double psi = (expectedOutput - values[2][0]) * activationFunction(values[2][0], true);
 
       if (layer == 1)
-         hj = calc(0, currentNode);
-      else
-         hj = calc(0, nextNode);
-
-      if (layer == 1)
-      {
-         output = -activationFunction(hj, false) * psi;
-      }
+         output = -values[1][currentNode] * psi;
       else if (layer == 0)
       {
          double omega = psi * weights[1][nextNode][0];
-         output = -values[0][currentNode] * omega * activationFunction(hj, true);
+         output = -values[0][currentNode] * omega * activationFunction(values[1][nextNode], true);
       }
 
       return -learningFactor * output;
    }
 
    /**
-    * This calculates the sum of the nodes from layer to the next layer's node.
+    * This calculates the sum of the nodes from layer to the next layer's node. This is not used right now, maybe later.
     * 
     * @param layer the layer in which you are starting from
     * @param node  the node to which you are going towards
@@ -363,7 +361,7 @@ public class Network
    }
 
    /**
-    * This takes in the input for the inputs of the neural and potentially weights.
+    * This takes in the input and outputs from the user for the inputs of the neural.
     */
    public void takeInInput()
    {
@@ -372,12 +370,12 @@ public class Network
       System.out.println("How many different tests would you like?");
       numOfTrainingSets = sc.nextInt();
 
-      input = new double[numOfTrainingSets][inputNodes];
+      input = new double[numOfTrainingSets][sizes[0]];
       output = new double[numOfTrainingSets];
 
       for (int test = 0; test < numOfTrainingSets; test++)
       {
-         for (int j = 0; j < inputNodes; j++)
+         for (int j = 0; j < sizes[0]; j++)
          {
             System.out.println("Please input the value node " + j + " for test number " + test);
             input[test][j] = sc.nextDouble();
@@ -391,7 +389,8 @@ public class Network
    }
 
    /**
-    * This randomizes the weights of the neural network between two integers.
+    * This randomizes the weights of the neural network between two integers, the two integers specified by lowerRandomizedWeight
+    * and higherRandomizedWeight.
     */
    public void randomizeWeights()
    {
@@ -402,7 +401,7 @@ public class Network
    }
 
    /**
-    * This gets the random number between LOWER_RANDOMIZED_WEIGHT and HIGHER_RANDOMIZED_WEIGHT.
+    * This gets the random number between its parameters lower and higher.
     * 
     * @param lower  the lower bound of randomization
     * @param higher the higher bound of randomization
