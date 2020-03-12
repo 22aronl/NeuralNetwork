@@ -2,9 +2,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * This is the current iteration of the neural network (not really). It
- * currently can take in weights and inputs, and evaluates the inputs into an
- * output.
+ * This is the current iteration of the neural network (not really). It currently can take in weights and inputs, and evaluates the
+ * inputs into an output.
  * 
  * @author Aaron Lo
  * @version 2-11-20
@@ -33,8 +32,7 @@ public class Network
    /** How much the network steps at every iteration. */
    public double learningFactor = 0.1;
    /**
-    * When the network should stop learning after hte error is below this
-    * threshold.
+    * When the network should stop learning after hte error is below this threshold.
     */
    public double errorThreshold = 0.01;
    /** How many times the network should run. */
@@ -148,8 +146,7 @@ public class Network
    }
 
    /**
-    * This prints the state of the network (the results of test cases, and
-    * weights).
+    * This prints the state of the network (the results of test cases, and weights).
     */
    public void printStateOfNetwork()
    {
@@ -241,10 +238,16 @@ public class Network
    {
       int iteration = 0;
       double maxError = getMaxError();
-      double curError;
+      int percentage = maximumNumberOfIteration / 20;
+      int current = percentage;
 
       while (maxError > errorThreshold && iteration++ < maximumNumberOfIteration)
       {
+         if (iteration > current)
+         {
+            System.out.print("#");
+            current += percentage;
+         }
          for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
          {
             values[0] = input[trainingSet];
@@ -260,11 +263,9 @@ public class Network
                   for (int toNode = 0; toNode < sizes[layer]; toNode++)
                      weights[layer - 1][startNode][toNode] += deltaWeights[layer - 1][startNode][toNode];
          } // for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
-         curError = getMaxError();
 
-         maxError = curError;
-      }//while (maxError > ERROR_THRESHOLD && iteration++ < MAXIMUM_NUMBER_OF_ITERATION)
-
+         maxError = getMaxError();
+      } // while (maxError > ERROR_THRESHOLD && iteration++ < MAXIMUM_NUMBER_OF_ITERATION)
       System.out.println("\nIterations " + (iteration - 1) + "\n");
    }
 
@@ -297,8 +298,7 @@ public class Network
     * This is the activation function.
     * 
     * @param input      the input into the activation function
-    * @param derivative true if you want the derivative of activation function;
-    *                   false if you want the activation function
+    * @param derivative true if you want the derivative of activation function; false if you want the activation function
     * @return the value of the the activation Function with the input
     */
    public double activationFunction(double input, boolean derivative)
@@ -318,8 +318,7 @@ public class Network
     * 
     * @param layer          the layer in which the weight starts
     * @param currentNode    the node from which the weight starts from
-    * @param nextNode       the node on the next layer in which the the weight goes
-    *                       to
+    * @param nextNode       the node on the next layer in which the the weight goes to
     * @param expectedOutput the expected output for the training
     * @return how much the weight should change
     */
@@ -403,8 +402,7 @@ public class Network
    }
 
    /**
-    * This gets the random number between LOWER_RANDOMIZED_WEIGHT and
-    * HIGHER_RANDOMIZED_WEIGHT.
+    * This gets the random number between LOWER_RANDOMIZED_WEIGHT and HIGHER_RANDOMIZED_WEIGHT.
     * 
     * @param lower  the lower bound of randomization
     * @param higher the higher bound of randomization
@@ -416,9 +414,8 @@ public class Network
    }
 
    /**
-    * This evalutes the values in the network(in the values array) from the first
-    * layer to the last layer, given that the inputs are in the first layer
-    * already.
+    * This evalutes the values in the network(in the values array) from the first layer to the last layer, given that the inputs are
+    * in the first layer already.
     */
    public void feedForward()
    {
