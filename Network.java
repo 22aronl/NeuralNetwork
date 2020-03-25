@@ -2,8 +2,8 @@ import java.io.*;
 import java.util.*;
 
 /**
- * This is the current iteration of the neural network It currently can take in weights and inputs, and evaluates the inputs into an
- * output.
+ * This is the current iteration of the neural network. It currently can take in weights and inputs, and evaluates the inputs into
+ * an output. In addition to that, the network can learn for a a-b-1 configuration network given a set of input and output.
  * 
  * @author Aaron Lo
  * @version 2-11-20
@@ -134,6 +134,17 @@ public class Network
       else
          loadWeights(weightFile);
 
+      System.out.println("\nMaxNumberOfIteration: " + maximumNumberOfIteration);
+      System.out.println("Weights from " + lowerRandomizedWeight + " to " + higherRandomizedWeight);
+      System.out.println("Error Threshold: " + errorThreshold);
+      System.out.println("Learning Factor: " + learningFactor);
+      System.out.println("Number of Activations");
+
+      for (int index = 0; index < totalNumberOfLayers; index++)
+         System.out.print(sizes[index] + " ");
+
+      System.out.println("");
+
       if (inputFileNames.length == 0)
       {
          takeInInput();
@@ -242,6 +253,7 @@ public class Network
    {
       int iteration = 0;
       double maxError = getMaxError();
+      double curError;
       int percentage = maximumNumberOfIteration / 20;
       int current = percentage;
 
@@ -269,10 +281,14 @@ public class Network
                      weights[layer - 1][startNode][toNode] += deltaWeights[layer - 1][startNode][toNode];
          } // for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
 
-         maxError = getMaxError();
+         curError = getMaxError();
+
+         maxError = curError;
       } // while (maxError > ERROR_THRESHOLD && iteration++ < MAXIMUM_NUMBER_OF_ITERATION)
 
-      System.out.println("\nIterations " + (iteration - 1) + "\n");
+      System.out.println("\nIterations " + (iteration - 1));
+      System.out.println("Max Error Reached " + maxError);
+      System.out.println("Final Learning Factor " + learningFactor + "\n");
    }
 
    /**
@@ -302,7 +318,9 @@ public class Network
 
    /**
     * This is the activation function. If you want the normal function, call this with (input, false). If you want the derivative,
-    * enter into the input param the value that has already been activated, and true into the derivative param.
+    * enter into the input param the value that has already been activated, and true into the derivative param. You do want to keep
+    * in mind that when calling for the derivative of the activation funciton, the input should be already evaluated by the non
+    * derivative activation function.
     * 
     * @param input      the input into the activation function
     * @param derivative true if you want the derivative of activation function; false if you want the activation function
@@ -313,9 +331,9 @@ public class Network
       double output = 0.0;
 
       if (derivative)
-         output = input * (1 - input);
+         output = input * (1.0 - input);
       else
-         output = 1 / (1 + Math.exp(-input));
+         output = 1.0 / (1.0 + Math.exp(-input));
 
       return output;
    }
@@ -355,8 +373,10 @@ public class Network
    public double calc(int layer, int node)
    {
       double sum = 0.0;
+
       for (int i = 0; i < sizes[layer]; i++)
          sum += weights[layer][i][node] * values[layer][i];
+
       return sum;
    }
 
