@@ -3,7 +3,7 @@ import java.util.*;
 
 /**
  * This is the current iteration of the neural network. It currently can take in weights and inputs, and evaluates the inputs into
- * an output. In addition to that, the network can learn for a a-b-1 configuration network given a set of input and output.
+ * an output. In addition to that, the network can learn for a a-b-c configuration network given a set of input and output.
  * 
  * @author Aaron Lo
  * @version 2-11-20
@@ -12,7 +12,7 @@ import java.util.*;
  *          List of Methods: double activationFunction(double, boolean), double changeInWeight(int, int, int, double), void
  *          feedForward(), double getMaxError(), double getRandomNumber(double, double), void learningSet(), void
  *          loadInputs(String), void loadWeights(String), void main(String[]), Network(String[]), void printStateOfNetwork(), void
- *          printTestCases(), void printWeights(), void randomizeWeights(), void takeInInput()
+ *          printTestCases(), void printWeights(), void randomizeWeights(), void takeInInput(), double calcError()
  * 
  * 
  */
@@ -43,7 +43,7 @@ public class Network
    private double[][][] deltaWeights;
    private double[][] values;
    private double[][] input;
-   private double[] output;
+   private double[][] output;
    private int[] sizes;
 
    private int numOfTrainingSets;
@@ -145,9 +145,18 @@ public class Network
 
       System.out.println("");
 
-      if (inputFileNames.length == 0)
+      if (inputFileNames.length == 1)
       {
-         takeInInput();
+         loadInputs(inputFileNames[0]);
+         // int k = 0;
+         // for (int i = 0; i < 1000; i++)
+         // {
+         //    randomizeWeights();
+         //    if (learningSet() >= 500)
+         //       k++;
+         // }
+         // System.out.println("Iterations that timed out: " + k); 
+
          learningSet();
          printStateOfNetwork();
       }
@@ -186,9 +195,17 @@ public class Network
 
          System.out.println("");
          feedForward();
-         System.out.println("The output is " + values[totalNumberOfLayers - 1][0]);
-         System.out.println("The expected output is " + output[i]);
-         System.out.println("The error is " + Math.abs(output[i] - values[totalNumberOfLayers - 1][0]) + "\n");
+         System.out.print("The outputs are ");
+
+         for (int j = 0; j < sizes[totalNumberOfLayers - 1]; j++)
+            System.out.print(values[totalNumberOfLayers - 1][j] + " ");
+
+         System.out.print("\nThe expected outputs are ");
+
+         for (int j = 0; j < sizes[totalNumberOfLayers - 1]; j++)
+            System.out.print(output[i][j] + " ");
+
+         System.out.println("\nThe total error is " + calcError(i) + "\n");
       } // for (int i = 0; i < numOfTrainingSets; i++)
    }
 
@@ -215,14 +232,15 @@ public class Network
       numOfTrainingSets = Integer.parseInt(inputReader.readLine());
 
       input = new double[numOfTrainingSets][sizes[0]];
-      output = new double[numOfTrainingSets];
+      output = new double[numOfTrainingSets][sizes[totalNumberOfLayers - 1]];
 
       for (int set = 0; set < numOfTrainingSets; set++)
       {
          for (int inputs = 0; inputs < sizes[0]; inputs++)
             input[set][inputs] = Double.parseDouble(inputReader.readLine());
 
-         output[set] = Double.parseDouble(inputReader.readLine());
+         for (int outputs = 0; outputs < sizes[totalNumberOfLayers - 1]; outputs++)
+            output[set][outputs] = Double.parseDouble(inputReader.readLine());
       }
 
       inputReader.close();
@@ -292,6 +310,23 @@ public class Network
    }
 
    /**
+    * This calculates the error given a test Case.
+    * 
+    * @param testCase the testCase for the total error (sum of error per output ^ 2 / 2)
+    * @return the error for the given testCase
+    */
+   public double calcError(int testCase)
+   {
+      double maxError = 0.0;
+
+      for (int outputs = 0; outputs < sizes[totalNumberOfLayers - 1]; outputs++)
+         maxError += (output[testCase][outputs] - values[totalNumberOfLayers - 1][outputs])
+               * (output[testCase][outputs] - values[totalNumberOfLayers - 1][outputs]);
+
+      return maxError / 2.0;
+   }
+
+   /**
     * This gets the maximum error of all the test cases.
     * 
     * @return the maximum error
@@ -300,14 +335,14 @@ public class Network
    {
       values[0] = input[0];
       feedForward();
-      double maxError = Math.abs(output[0] - values[totalNumberOfLayers - 1][0]);
+      double maxError = calcError(0);
       double curError;
 
       for (int trial = 1; trial < numOfTrainingSets; trial++)
       {
          values[0] = input[trial];
          feedForward();
-         curError = Math.abs(output[trial] - values[totalNumberOfLayers - 1][0]);
+         curError = calcError(trial);
 
          if (curError > maxError)
             maxError = curError;
@@ -347,16 +382,20 @@ public class Network
     * @param expectedOutput the expected output for the training
     * @return how much the weight should change
     */
-   public double changeInWeight(int layer, int currentNode, int nextNode, double expectedOutput)
+   public double changeInWeight(int layer, int currentNode, int nextNode, double[] expectedOutput)
    {
       double output = 0.0;
-      double psi = (expectedOutput - values[2][0]) * activationFunction(values[2][0], true);
 
       if (layer == 1)
-         output = -values[1][currentNode] * psi;
+         output = -values[1][currentNode] * (expectedOutput[nextNode] - values[2][nextNode])
+               * activationFunction(values[2][nextNode], true);
       else if (layer == 0)
       {
-         double omega = psi * weights[1][nextNode][0];
+         double omega = 0.0;
+
+         for (int i = 0; i < sizes[totalNumberOfLayers - 1]; i++) // i == I
+            omega += (expectedOutput[i] - values[2][i]) * activationFunction(values[2][i], true) * weights[1][nextNode][i];
+
          output = -values[0][currentNode] * omega * activationFunction(values[1][nextNode], true);
       }
 
@@ -391,7 +430,7 @@ public class Network
       numOfTrainingSets = sc.nextInt();
 
       input = new double[numOfTrainingSets][sizes[0]];
-      output = new double[numOfTrainingSets];
+      output = new double[numOfTrainingSets][sizes[totalNumberOfLayers - 1]];
 
       for (int test = 0; test < numOfTrainingSets; test++)
       {
@@ -401,8 +440,11 @@ public class Network
             input[test][j] = sc.nextDouble();
          }
 
-         System.out.println("What is the output for this trial: " + test);
-         output[test] = sc.nextDouble();
+         for (int j = 0; j < sizes[totalNumberOfLayers - 1]; j++)
+         {
+            System.out.println("What is the output " + j + " for this trial: " + test);
+            output[test][j] = sc.nextDouble();
+         }
       }
 
       sc.close();
