@@ -44,6 +44,7 @@ public class Network
    private double[][] values;
    private double[][] input;
    private double[][] output;
+   private double[][] trident;
    private int[] sizes;
 
    private int numOfTrainingSets;
@@ -128,6 +129,7 @@ public class Network
       weights = new double[totalNumberOfLayers - 1][maxWidthForWeights][maxWidthForWeights];
       deltaWeights = new double[totalNumberOfLayers - 1][maxWidthForWeights][maxWidthForWeights];
       values = new double[totalNumberOfLayers][maxWidthForWeights];
+      trident = new double[totalNumberOfLayers][maxWidthForWeights];
 
       if (weightFile.equals(""))
          randomizeWeights();
@@ -151,11 +153,11 @@ public class Network
          // int k = 0;
          // for (int i = 0; i < 1000; i++)
          // {
-         //    randomizeWeights();
-         //    if (learningSet() >= 500)
-         //       k++;
+         // randomizeWeights();
+         // if (learningSet() >= 500)
+         // k++;
          // }
-         // System.out.println("Iterations that timed out: " + k); 
+         // System.out.println("Iterations that timed out: " + k);
 
          learningSet();
          printStateOfNetwork();
@@ -288,15 +290,31 @@ public class Network
             values[0] = input[trainingSet];
             feedForward();
 
-            for (int layer = totalNumberOfLayers - 2; layer >= 0; layer--)
-               for (int startNode = 0; startNode < sizes[layer]; startNode++)
-                  for (int toNode = 0; toNode < sizes[layer + 1]; toNode++)
-                     deltaWeights[layer][startNode][toNode] = changeInWeight(layer, startNode, toNode, output[trainingSet]);
+            for (int index = 0; index < sizes[totalNumberOfLayers - 1]; index++)
+            {
+               trident[totalNumberOfLayers - 1][index] = (output[trainingSet][index] - values[totalNumberOfLayers - 1][index])
+                     * activationFunction(values[totalNumberOfLayers - 1][index], true);
+            }
 
-            for (int layer = totalNumberOfLayers - 1; layer >= 1; layer--)
-               for (int startNode = 0; startNode < sizes[layer - 1]; startNode++)
-                  for (int toNode = 0; toNode < sizes[layer]; toNode++)
-                     weights[layer - 1][startNode][toNode] += deltaWeights[layer - 1][startNode][toNode];
+            for (int layer = totalNumberOfLayers - 2; layer >= 0; layer--)
+            {
+               for (int startNode = 0; startNode < sizes[layer]; startNode++)
+               {
+                  double cur = 0.0;
+
+                  for (int toNode = 0; toNode < sizes[layer + 1]; toNode++)
+                  {
+                     cur += trident[layer + 1][toNode] * weights[layer][startNode][toNode];
+
+                     weights[layer][startNode][toNode] += learningFactor * values[layer][startNode]
+                           * trident[layer + 1][toNode];
+
+                  }
+
+                  trident[layer][startNode] = cur * activationFunction(values[layer][startNode], true);
+               }
+            }
+
          } // for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
 
          curError = getMaxError();
