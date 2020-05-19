@@ -1,8 +1,10 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import javax.swing.*;
 
-public class Interface extends JComponent
+public class Interface extends JComponent implements MouseMotionListener
 {
    private static final long serialVersionUID = 1L;
 
@@ -67,8 +69,10 @@ public class Interface extends JComponent
       panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
       frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
       frame.add(panel);
+      this.addMouseMotionListener(this);
       frame.setSize(500, 300);
       frame.setVisible(true);
+      
    }
 
    public void secondPage()
@@ -145,6 +149,16 @@ public class Interface extends JComponent
 
       panel.add(button);
       panel.add(button2);
+   }
+
+   public void mouseMoved(MouseEvent e)
+   {
+      System.out.println("YEE");
+   }
+
+   public void mouseDragged(MouseEvent e)
+   {
+
    }
 
 }

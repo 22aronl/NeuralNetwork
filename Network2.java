@@ -1,10 +1,9 @@
 import java.io.*;
-import java.util.StringTokenizer;
 
 /**
  * This is the current iteration of the neural network. It currently can take in weights and inputs, and evaluates the inputs into
  * an output. In addition to that, the network can learn for any configuration network (ie a-b-c, a-b-c-d, a-b-c-d-e-f) given a set
- * of input and output using backpropagation with steepest descent.
+ * of input and output using backpropogation with steepest descent.
  * 
  * @author Aaron Lo
  * @version 2-11-20
@@ -16,13 +15,8 @@ import java.util.StringTokenizer;
  *          printTestCases(), void printWeights(), void randomizeWeights()
  * 
  * 
- * 
- * 
- * MAKE SURE TO RESET THE DERIVATIVE OF THE ACTIATION FUNCTION BACK TO NORMAL
- * 
- * 
  */
-public class Network
+public class Network2
 {
    /**
     * This is the current tester for the neural network.
@@ -31,7 +25,7 @@ public class Network
     */
    public static void main(String[] args) throws IOException
    {
-      new Network(args);
+      new Network2(args);
    }
 
    /** The lower bound for the randomized weight. */
@@ -46,11 +40,9 @@ public class Network
    public int maximumNumberOfIteration = 100000;
    /** The outputFile. */
    public String outputFile;
-   public String testFile;
 
    private double[][][] weights;
    private double[][] values;
-   private double[][] theta;
    private double[][] input;
    private double[][] output;
    private double[][] trident;
@@ -66,7 +58,7 @@ public class Network
     *             argument, that signifies the layers of the network
     * @throws IOException if the file called for is not found
     */
-   public Network(String[] args) throws IOException
+   public Network2(String[] args) throws IOException
    {
       String configurationFile = "configuration.txt";
       String weightFile = "";
@@ -135,16 +127,12 @@ public class Network
          for (int inputFiles = 0; inputFiles < inputFileNumber; inputFiles++)
             inputFileNames[inputFiles] = configReader.readLine();
 
-         if (configReader.readLine().equals("true"))
-            testFile = configReader.readLine();
-
          configReader.close();
       } // else
 
       weights = new double[totalNumberOfLayers - 1][maxWidthForWeights][maxWidthForWeights];
       values = new double[totalNumberOfLayers][maxWidthForWeights];
       trident = new double[totalNumberOfLayers][maxWidthForWeights];
-      theta = new double[totalNumberOfLayers][maxWidthForWeights];
 
       if (weightFile.equals(""))
          randomizeWeights();
@@ -182,45 +170,7 @@ public class Network
             learningSet();
             printTestCases();
          }
-
-      if (testFile != null)
-      {
-         runTestFiles();
-      }
    } // public Network(String[] args) throws IOException
-
-   private void runTestFiles() throws IOException
-   {
-      BufferedReader inputReader = new BufferedReader(new FileReader(new File("files/" + testFile)));
-      numOfTrainingSets = Integer.parseInt(inputReader.readLine());
-
-      input = new double[numOfTrainingSets][sizes[0]];
-      String[] names = new String[numOfTrainingSets];
-
-      for (int set = 0; set < numOfTrainingSets; set++)
-      {
-         for (int inputs = 0; inputs < sizes[0]; inputs++)
-            input[set][inputs] = Double.parseDouble(inputReader.readLine());
-
-         names[set] = inputReader.readLine();
-      }
-
-      inputReader.close();
-      for (int i = 0; i < numOfTrainingSets; i++)
-      {
-         System.out.println("Training for file: " + names[i]);
-         values[0] = input[i];
-         feedForward();
-
-         System.out.print("The outputs are ");
-
-         for (int j = 0; j < sizes[totalNumberOfLayers - 1]; j++)
-            System.out.print(values[totalNumberOfLayers - 1][j] + " ");
-
-         System.out.print("\n\n");
-      }
-
-   }
 
    /**
     * This prints the state of the network (the results of test cases, and weights).
@@ -242,15 +192,15 @@ public class Network
          System.out.print("The inputs are ");
          values[0] = input[i];
 
-         //for (int j = 0; j < sizes[0]; j++)
-            //System.out.print(values[0][j] + " ");
+         for (int j = 0; j < sizes[0]; j++)
+            System.out.print(values[0][j] + " ");
 
          System.out.println("");
          feedForward();
          System.out.print("The outputs are ");
 
          for (int j = 0; j < sizes[totalNumberOfLayers - 1]; j++)
-            System.out.print(values[totalNumberOfLayers - 1][j] + " ");
+            System.out.print(activationFunction(values[totalNumberOfLayers - 1][j]) + " ");
 
          System.out.print("\nThe expected outputs are ");
 
@@ -310,9 +260,8 @@ public class Network
          for (int inputs = 0; inputs < sizes[0]; inputs++)
             input[set][inputs] = Double.parseDouble(inputReader.readLine());
 
-         StringTokenizer st = new StringTokenizer(inputReader.readLine());
          for (int outputs = 0; outputs < sizes[totalNumberOfLayers - 1]; outputs++)
-            output[set][outputs] = Double.parseDouble(st.nextToken());
+            output[set][outputs] = Double.parseDouble(inputReader.readLine());
       }
 
       inputReader.close();
@@ -345,12 +294,8 @@ public class Network
       double maxError = getMaxError();
       double curError;
 
-      int percent = maximumNumberOfIteration / 10;
-      int current = percent;
-
       while (maxError > errorThreshold && iteration++ < maximumNumberOfIteration)
       {
-
          for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
          {
             values[0] = input[trainingSet];
@@ -358,7 +303,8 @@ public class Network
 
             for (int index = 0; index < sizes[totalNumberOfLayers - 1]; index++)
             {
-               trident[totalNumberOfLayers - 1][index] = (output[trainingSet][index] - values[totalNumberOfLayers - 1][index])
+               trident[totalNumberOfLayers - 1][index] = (output[trainingSet][index]
+                     - activationFunction(values[totalNumberOfLayers - 1][index]))
                      * derivativeActivationFunction(values[totalNumberOfLayers - 1][index]);
             }
 
@@ -371,7 +317,8 @@ public class Network
                   for (int toNode = 0; toNode < sizes[layer + 1]; toNode++)
                   {
                      cur += trident[layer + 1][toNode] * weights[layer][startNode][toNode];
-                     weights[layer][startNode][toNode] += learningFactor * values[layer][startNode] * trident[layer + 1][toNode];
+                     weights[layer][startNode][toNode] += learningFactor * activationFunction(values[layer][startNode])
+                           * trident[layer + 1][toNode];
                   }
 
                   trident[layer][startNode] = cur * derivativeActivationFunction(values[layer][startNode]);
@@ -402,8 +349,8 @@ public class Network
       double maxError = 0.0;
 
       for (int outputs = 0; outputs < sizes[totalNumberOfLayers - 1]; outputs++)
-         maxError += (output[testCase][outputs] - values[totalNumberOfLayers - 1][outputs])
-               * (output[testCase][outputs] - values[totalNumberOfLayers - 1][outputs]);
+         maxError += (output[testCase][outputs] - activationFunction(values[totalNumberOfLayers - 1][outputs]))
+               * (output[testCase][outputs] - activationFunction(values[totalNumberOfLayers - 1][outputs]));
 
       return maxError / 2.0;
    } // private double calcError(int testCase)
@@ -433,25 +380,14 @@ public class Network
       return maxError;
    } // private double getMaxError()
 
-   /**
-    * The activation function.
-    * 
-    * @param input the input to the function
-    * @return the activated function
-    */
    private double activationFunction(double input)
    {
       return 1.0 / (1.0 + Math.exp(-input));
    }
 
-   /**
-    * The derivative of the activation function.
-    * @param input the input to the function
-    * @return the derivative of the f(x)
-    */
    private double derivativeActivationFunction(double input)
    {
-      return input * (1.0 - input);
+      return activationFunction(input) * (1.0 - activationFunction(input));
    }
 
    /**
@@ -487,16 +423,27 @@ public class Network
    {
       double sum = 0.0;
 
-      for (int layer = 1; layer < totalNumberOfLayers; layer++)
+      int layer = 1;
+
+      for (int toNode = 0; toNode < sizes[layer]; toNode++)
+      {
+         sum = 0.0;
+
+         for (int startNode = 0; startNode < sizes[layer - 1]; startNode++)
+            sum += values[layer - 1][startNode] * weights[layer - 1][startNode][toNode];
+
+         values[layer][toNode] = sum;
+      }
+
+      for (layer = 2; layer < totalNumberOfLayers; layer++)
          for (int toNode = 0; toNode < sizes[layer]; toNode++)
          {
             sum = 0.0;
 
             for (int startNode = 0; startNode < sizes[layer - 1]; startNode++)
-               sum += values[layer - 1][startNode] * weights[layer - 1][startNode][toNode];
+               sum += activationFunction(values[layer - 1][startNode]) * weights[layer - 1][startNode][toNode];
 
-            theta[layer][toNode] = sum;
-            values[layer][toNode] = activationFunction(sum);
+            values[layer][toNode] = sum;
          }
    } // public void feedForward()
 } // public class Network

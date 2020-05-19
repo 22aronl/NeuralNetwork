@@ -1,0 +1,15 @@
+7
+IMG_0218.bmp
+1 0
+IMG_0219.bmp
+0 1
+IMG_0220.bmp
+1 0
+IMG_0221.bmp
+0 1
+IMG_0222.bmp
+1 0
+IMG_0223.bmp
+0 1
+IMG_0224.bmp
+IMG_0224.bmp 1 0
