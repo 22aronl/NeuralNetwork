@@ -1,0 +1,33 @@
+IMG_0227.bmp
+1 0 0
+IMG_0228.bmp
+0 1 0
+IMG_0229.bmp
+0 0 1
+IMG_0232.bmp
+1 0 0
+IMG_0233.bmp
+0 1 0
+IMG_0234.bmp
+0 0 1
+IMG_0237.bmp
+1 0 0
+IMG_0238.bmp
+0 1 0
+IMG_0239.bmp
+0 0 1
+IMG_0242.bmp
+1 0 0
+IMG_0243.bmp
+0 1 0
+IMG_0244.bmp
+0 0 1
+IMG_0247.bmp
+IMG_0247.bmp 1 0 0 0 1
+IMG_0248.bmp
+IMG_0248.bmp 1 0 0
+IMG_0249.bmp
+IMG_0249.bmp 0 0 1
+IMG_0250.bmp
+IMG_0250.bmp 4 0 0
+-1

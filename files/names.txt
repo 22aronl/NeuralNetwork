@@ -1,15 +1,61 @@
-7
-IMG_0218.bmp
-1 0
-IMG_0219.bmp
-0 1
-IMG_0220.bmp
-1 0
-IMG_0221.bmp
-0 1
-IMG_0222.bmp
-1 0
-IMG_0223.bmp
-0 1
-IMG_0224.bmp
-IMG_0224.bmp 1 0
+IMG_0254.bmp
+1 0 0 0 0
+IMG_0255.bmp
+0 1 0 0 0
+IMG_0256.bmp
+0 0 1 0 0
+IMG_0257.bmp
+0 0 0 1 0
+IMG_0258.bmp
+0 0 0 0 1
+IMG_0259.bmp
+1 0 0 0 0
+IMG_0260.bmp
+0 1 0 0 0
+IMG_0261.bmp
+0 0 1 0 0
+IMG_0262.bmp
+0 0 0 1 0
+IMG_0263.bmp
+0 0 0 0 1
+IMG_0264.bmp
+1 0 0 0 0
+IMG_0265.bmp
+0 1 0 0 0
+IMG_0266.bmp
+0 0 1 0 0
+IMG_0267.bmp
+0 0 0 1 0
+IMG_0268.bmp
+0 0 0 0 1
+IMG_0269.bmp
+1 0 0 0 0
+IMG_0270.bmp
+0 1 0 0 0
+IMG_0271.bmp
+0 0 1 0 0
+IMG_0272.bmp
+0 0 0 1 0
+IMG_0273.bmp
+0 0 0 0 1
+IMG_0274.bmp
+1 0 0 0 0
+IMG_0275.bmp
+0 1 0 0 0
+IMG_0276.bmp
+0 0 1 0 0
+IMG_0277.bmp
+0 0 0 1 0
+IMG_0278.bmp
+0 0 0 0 1
+IMG_0279.bmp
+IMG_0279.bmp 1
+IMG_0280.bmp
+IMG_0280.bmp 2
+IMG_0281.bmp
+IMG_0281.bmp 4
+IMG_0282.bmp
+IMG_0282.bmp 0
+test1.bmp
+test1.bmp random
+-1

@@ -217,6 +217,9 @@ public class Network
          for (int j = 0; j < sizes[totalNumberOfLayers - 1]; j++)
             System.out.print(values[totalNumberOfLayers - 1][j] + " ");
 
+         System.out.println("");
+         System.out.println("Total error is " + calcError(i));
+
          System.out.print("\n\n");
       }
 
@@ -350,6 +353,11 @@ public class Network
 
       while (maxError > errorThreshold && iteration++ < maximumNumberOfIteration)
       {
+         if(iteration % 500 == 0)
+         {
+            System.out.println(iteration + " " + maxError);
+         }
+
 
          for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
          {
@@ -382,6 +390,11 @@ public class Network
          } // for (int trainingSet = 0; trainingSet < numOfTrainingSets; trainingSet++)
 
          curError = getMaxError();
+
+         // if (curError > maxError)
+         //    learningFactor /= 2;
+         // else 
+         //    learningFactor *= 2;
 
          maxError = curError;
       } // while (maxError > ERROR_THRESHOLD && iteration++ < MAXIMUM_NUMBER_OF_ITERATION)

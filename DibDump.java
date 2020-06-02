@@ -737,7 +737,7 @@ public class DibDump
          {
             for (j = 0; j < iBytesPerRow; ++j) // j is now just the column counter
             {
-               System.out.printf("%08X ", imageArray[i][j]);
+               //System.out.printf("%08X ", imageArray[i][j]);
             }
             System.out.printf("\n");
          }
@@ -759,7 +759,7 @@ public class DibDump
          bmpInfoHeader_biClrUsed = 0; // Zero for true color
          bmpInfoHeader_biClrImportant = 0; // Zero for true color
 
-         FileOutputStream fstream = new FileOutputStream(outFileName);
+         FileOutputStream fstream = new FileOutputStream("input/IMG_0227.bmp");
          DataOutputStream out = new DataOutputStream(fstream);
 
          // BITMAPFILEHEADER
@@ -790,7 +790,8 @@ public class DibDump
          {
             for (j = 0; j < bmpInfoHeader_biWidth; ++j) // and the columns
             {
-               pel = colorToGrayscale(imageArray[i][j]);
+               imageArray[i][j] = colorToGrayscale(imageArray[i][j]);
+               pel = imageArray[i][j];
                rgbQuad_rgbBlue = pel & 0x00FF;
                rgbQuad_rgbGreen = (pel >> 8) & 0x00FF;
                rgbQuad_rgbRed = (pel >> 16) & 0x00FF;

@@ -18,11 +18,11 @@ public class ImageTraining
          {
             for (int j = 0; j < ar[0].length; j++)
             {
-               out.println((double)((ar[i][j] >> 8) & 0x00FF) / 255);
+               out.println((255 - (double)((ar[i][j] >> 8) & 0x00FF)) / 255);
             }
          }
          if(map.get(name) == null)
-            System.out.println(name);
+            throw new RuntimeException(name);
 
          out.println(map.get(name));
       }
@@ -34,13 +34,13 @@ public class ImageTraining
       try
       {
          BufferedReader br = new BufferedReader(new FileReader(new File("files/" + mapFile + ".txt")));
-         int k = Integer.parseInt(br.readLine());
-         for (int i = 0; i < k; i++)
+         String name = br.readLine();
+         while(!name.equals("-1"))
          {
-            String name = br.readLine();
             String output = br.readLine();
             map.put(name, output);
             System.out.println(name + " " + map.get(name));
+            name = br.readLine();
          }
          br.close();
       }
